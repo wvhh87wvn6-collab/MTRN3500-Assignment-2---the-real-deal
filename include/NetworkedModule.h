@@ -18,9 +18,11 @@ For clarification of inheritance requirements see diagram in the assignment spec
 //#define WEEDER_ADDRESS "192.168.1.200"
 #define DISPLAY_ADDRESS "127.0.0.1" // Display is always running locally (run the MATLAB code separately)
 
-ref class NetworkedModule abstract : public UGVModule
+// abstract
+ref class NetworkedModule : public UGVModule
 {
 	public:
+		NetworkedModule(SM_ThreadManagement^ SM_TM_, uint8_t heartbit) : UGVModule(SM_TM_, heartbit) {}
 		virtual error_state connect(String^ hostName, int portNumber) = 0;	// Establish TCP connection
 		virtual error_state communicate() = 0;								// Communicate over TCP connection (includes any error checking required on data)
 

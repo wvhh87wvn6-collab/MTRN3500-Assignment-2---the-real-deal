@@ -13,6 +13,7 @@ For clarification of inheritance requirements see diagram in the assignment spec
 
 #include <iostream>
 #include <SMObjects.h>
+#include <random>
 
 // ERROR HANDLING. Use this as the return value in your functions
 enum error_state {
@@ -21,55 +22,49 @@ enum error_state {
 	ERR_NO_DATA,
 	ERR_INVALID_DATA,
 	ERR_SM,
-	ERR_CONNECTION
+	ERR_CONNECTION,
+	ERR_TMM_NO_HEARTBEAT,
+	ERR_CRITICAL_THREAD_FAILURE
 	// Define your own additional error types as needed
 };
 
-ref class UGVModule abstract
+
+ref class UGVModule // abstract
 {
-	public:
-		/**
-		 * Send/Recieve data from shared memory structures
-		 *
-		 * @returns the success of this function at completion
-		*/
-		virtual error_state processSharedMemory() = 0;
+public:
+	UGVModule();
+	UGVModule(SM_ThreadManagement^ SM_TM_, uint8_t heartbit);
+	virtual error_state processSharedMemory();// = 0;
+	virtual bool getShutdownFlag();// = 0;
+	virtual void threadFunction();// = 0;
 
-		/**
-		 * Get Shutdown signal for the current, from Process Management SM
-		 *
-		 * @returns the current state of the shutdown flag
-		*/
-		virtual bool getShutdownFlag() = 0;
-
-		/**
-		 * Main runner for the thread to perform all required actions
-		*/
-		virtual void threadFunction() = 0;
-
-		/**
-		 * A helper function for printing a helpful error message based on the error type
-		 * returned from a function
-		 *
-		 * @param error the error that should be printed out
-		*/
-		static void printError(error_state error)
+	static void printError(error_state error)
+	{
+		switch (error)
 		{
-			switch (error)
-			{
-				case SUCCESS:
-					std::cout << "Success." << std::endl;
-					break;
-				case ERR_NO_DATA:
-					std::cout << "ERROR: No Data Available." << std::endl;
-					break;
-				case ERR_INVALID_DATA:
-					std::cout << "ERROR: Invalid Data Received." << std::endl;
-					break;
-				// ADD PRINTOUTS FOR OTHER ERROR TYPES
-			}
+		case SUCCESS:
+			std::cout << "Success." << std::endl;
+			break;
+		case ERR_NO_DATA:
+			std::cout << "ERROR: No Data Available." << std::endl;
+			break;
+		case ERR_INVALID_DATA:
+			std::cout << "ERROR: Invalid Data Received." << std::endl;
+			break;
+			// ADD PRINTOUTS FOR OTHER ERROR TYPES
+		default:
+			std::cout << "ERROR: Some other error occurred lol ( #" << error  << " )" << std::endl;
+			break;
 		}
+	}
 
-	protected:
-		SM_ThreadManagement^ SM_TM_;
+protected:
+	virtual error_state  processHeartbeat();// = 0;
+	SM_ThreadManagement^ TMM_SM_TM_;
+	uint8_t heartbit;
+	int crash_limit = 400; // always define this in inherited classes
+	Stopwatch^ Heartbeat_Stopwatch;
+	String^ name;
+
+	int debug_sleep_time = 100;
 };

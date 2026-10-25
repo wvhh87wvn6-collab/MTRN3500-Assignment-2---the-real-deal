@@ -36,6 +36,20 @@ constexpr uint8_t bit_CONTROLLER =      0b00010000;
 constexpr uint8_t bit_DISPLAY =         0b00100000;
 constexpr uint8_t bit_CRASHAVOIDANCE =  0b01000000;
 
+
+ref struct ThreadProperties {
+    ThreadStart^ ThreadStart_;
+    bool Critical;
+    String^ ThreadName;
+    uint8_t BitID;
+    ThreadProperties(ThreadStart^ start, bool critical, uint8_t bit_id, String^ threadname) {
+        ThreadStart_ = start;
+        Critical = critical;
+        ThreadName = threadname;
+        BitID = bit_id;
+    }
+};
+
 ref class SM_ThreadManagement
 {
 public:

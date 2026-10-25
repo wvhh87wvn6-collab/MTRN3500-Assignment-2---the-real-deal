@@ -1,24 +1,29 @@
 #pragma once
 
 #include <UGVModule.h>
+#include <SMObjects.h>
 
 ref class ThreadManagement : public UGVModule {
 public:
-    // Create shared memory objects
+    ThreadManagement() {
+        this->name = "[TMM]";
+    };
     error_state setupSharedMemory();
 
-    // Send/Recieve data from shared memory structures
-    error_state processSharedMemory() override;
-
-    // Shutdown all modules in the software
     void shutdownModules();
 
-    // Get Shutdown signal for module, from Thread Management SM
+    error_state processSharedMemory() override;
     bool getShutdownFlag() override;
-
-    // Thread function for TMM
     void threadFunction() override;
+    error_state processHeartbeat() override;
 
 private:
     // Add any additional data members or helper functions here
+    SM_ThreadManagement^ TMM_SM_TM_;
+    SM_Laser^ TMM_SM_LiDAR_;
+    SM_GPS^ TMM_SM_GNSS_;
+
+    array<Stopwatch^>^ TMM_StopwatchList;
+    array<Thread^>^ ThreadList;
+    array<ThreadProperties^>^ ThreadPropertiesList;
 };
